@@ -10,6 +10,7 @@ const {logger} = require('./middleware/logger');
 const app = express();
 
 app.use(express.static('public'));
+app.use(express.json());//parse request body
 app.use(logger);
 
 app.get('/api/notes',(req,res,next)=>{
@@ -30,8 +31,41 @@ app.get('/api/notes',(req,res,next)=>{
   // }
 });
 
-app.get('/api/notes/:id',(req,res)=>{
-  res.json(data.find(item => item.id === Number(req.params.id)));
+app.get('/api/notes/:id',(req,res,next)=>{
+  const id = req.params.id;
+  notes.find(id,(err,item)=>{
+    if(err){
+      return next(err);
+    }
+    res.json(item);
+  });
+  //res.json(data.find(item => item.id === Number(req.params.id)));
+});
+
+app.put('/api/notes/:id',(req,res,next)=>{
+  const id = req.params.id;
+
+  const updateObj = {};
+  const updateField = ['title','content'];
+
+  updateField.forEach(field => {
+    if(field in req.body){
+      updateObj[field] = req.body[field];
+    }
+  });
+  // console.log(updateObj);
+  // console.log(req.body);
+  notes.update(id,updateObj,(err,item)=>{
+    if(err){
+      return next(err);
+    }
+    if(item){
+      res.json(item);
+    }
+    else{
+      next();
+    }
+  });
 });
 
 //404 handler
