@@ -20,15 +20,7 @@ app.get('/api/notes',(req,res,next)=>{
       return next(err);
     }
     res.json(list);
-  });
-  // let dataFiltered ='';
-  // if(searchTerm){
-  //   dataFiltered = data.filter(item => item.title.includes(searchTerm));
-  //   res.json(dataFiltered);
-  // }
-  // else{
-  //   res.json(data);
-  // }
+  }); 
 });
 
 app.get('/api/notes/:id',(req,res,next)=>{
@@ -38,8 +30,7 @@ app.get('/api/notes/:id',(req,res,next)=>{
       return next(err);
     }
     res.json(item);
-  });
-  //res.json(data.find(item => item.id === Number(req.params.id)));
+  });  
 });
 
 app.put('/api/notes/:id',(req,res,next)=>{
@@ -53,8 +44,7 @@ app.put('/api/notes/:id',(req,res,next)=>{
       updateObj[field] = req.body[field];
     }
   });
-  // console.log(updateObj);
-  // console.log(req.body);
+    
   notes.update(id,updateObj,(err,item)=>{
     if(err){
       return next(err);
