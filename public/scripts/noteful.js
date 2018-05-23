@@ -68,21 +68,39 @@ const noteful = (function () {
   function handleNoteFormSubmit() {
     $('.js-note-edit-form').on('submit', function (event) {
       event.preventDefault();
+
       const editForm = $(event.currentTarget);
+
       const noteObj = {
-        title : editForm.find('.js-note-title-entry').val(),
-        content : editForm.find('.js-note-content-entry').val()
+        id: store.currentNote.id,
+        title: editForm.find('.js-note-title-entry').val(),
+        content: editForm.find('.js-note-content-entry').val()
       };
 
-      noteObj.id = store.currentNote.id;
-      console.log(store.currentNote.id);
-      api.update(noteObj.id,noteObj,updateResponse =>{
-        console.log(updateResponse);
-        store.currentNote = updateResponse;
-        render();
-      });
+      if (noteObj.id) {
 
-      //console.log('Submit Note, coming soon...');
+        api.update(store.currentNote.id, noteObj, updateResponse => {
+          store.currentNote = updateResponse;
+
+          api.search(store.currentSearchTerm, searchResponse => {
+            store.notes = searchResponse;
+            render();
+          });
+
+        });
+
+      } else {
+
+        api.create(noteObj, createResponse => {
+          store.currentNote = createResponse;
+
+          api.search(store.currentSearchTerm, searchResponse => {
+            store.notes = searchResponse;
+            render();
+          });
+
+        });
+      }
 
     });
   }
@@ -91,7 +109,8 @@ const noteful = (function () {
     $('.js-start-new-note-form').on('submit', event => {
       event.preventDefault();
 
-      console.log('Start New Note, coming soon...');
+      store.currentNote = {};
+      render();
 
     });
   }
@@ -100,16 +119,27 @@ const noteful = (function () {
     $('.js-notes-list').on('click', '.js-note-delete-button', event => {
       event.preventDefault();
 
-      console.log('Delete Note, coming soon...');
-      
+      const noteId = getNoteIdFromElement(event.currentTarget);
+
+      api.remove(noteId, () => {
+
+        api.search(store.currentSearchTerm, searchResponse => {
+          store.notes = searchResponse;
+          if (noteId === store.currentNote.id) {
+            store.currentNote = {};
+          }
+          render();
+        });
+
+      });
     });
   }
 
   function bindEventListeners() {
     handleNoteItemClick();
     handleNoteSearchSubmit();
-    
-    handleNoteFormSubmit();    
+
+    handleNoteFormSubmit();
     handleNoteStartNewSubmit();
     handleNoteDeleteClick();
   }
