@@ -17,8 +17,11 @@ app.use('/api',router);
 app.use(function(req,res,next){
   let err = new Error('Not Found');
   err.status = 404;
-  res.status(404).json({message: 'Not Found'});
+  next(err);
+  //res.status(404).json({message: 'Not Found'});
 });
+
+
 
 //custom error handler
 app.use(function(err,req,res,next){
@@ -29,6 +32,8 @@ app.use(function(err,req,res,next){
   });
 });
 
+
+//error handler
 
 app.listen(PORT,function(){
   console.info(`Server listening on ${this.address().port}`);  
